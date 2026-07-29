@@ -1,0 +1,347 @@
+[
+    {
+        "id": "esp32_iot_tab",
+        "type": "tab",
+        "label": "ESP32 -> InfluxDB (sans dashboard)",
+        "disabled": false,
+        "info": "Chaine IoT : MQTT -> parse -> InfluxDB. Grafana fait toute la visualisation.",
+        "env": []
+    },
+    {
+        "id": "mqtt_in_temp",
+        "type": "mqtt in",
+        "z": "esp32_iot_tab",
+        "name": "Tempdata (ESP32)",
+        "topic": "Tempdata",
+        "qos": "2",
+        "datatype": "auto",
+        "broker": "broker_public",
+        "inputs": 0,
+        "x": 140,
+        "y": 100,
+        "wires": [
+            [
+                "fn_parse_temp"
+            ]
+        ]
+    },
+    {
+        "id": "fn_parse_temp",
+        "type": "function",
+        "z": "esp32_iot_tab",
+        "name": "Parser temp/hum -> fields",
+        "func": "var input = msg.payload.toString().trim();\nvar parts = input.split(\",\");\nvar temperature = parseFloat(parts[0]);\nvar humidity = parseFloat(parts[1]);\n\nmsg.payload = [\n    { temperature: temperature, humidity: humidity },\n    { device: \"esp32_01\" }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 380,
+        "y": 100,
+        "wires": [
+            [
+                "influx_out"
+            ]
+        ]
+    },
+    {
+        "id": "inj_led_on",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "LED ON",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "ON",
+        "payloadType": "str",
+        "x": 140,
+        "y": 200,
+        "wires": [
+            [
+                "mqtt_out_lights",
+                "fn_build_led"
+            ]
+        ]
+    },
+    {
+        "id": "inj_led_off",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "LED OFF",
+        "topic": "",
+        "payload": "OFF",
+        "payloadType": "str",
+        "x": 140,
+        "y": 240,
+        "wires": [
+            [
+                "mqtt_out_lights",
+                "fn_build_led"
+            ]
+        ]
+    },
+    {
+        "id": "fn_build_led",
+        "type": "function",
+        "z": "esp32_iot_tab",
+        "name": "Etat LED -> field",
+        "func": "var state = (msg.payload === \"ON\") ? 1 : 0;\nmsg.payload = [\n    { led: state },\n    { device: \"esp32_01\" }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 380,
+        "y": 220,
+        "wires": [
+            [
+                "influx_out"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_lights",
+        "type": "mqtt out",
+        "z": "esp32_iot_tab",
+        "name": "-> lights",
+        "topic": "lights",
+        "qos": "1",
+        "retain": "",
+        "broker": "broker_public",
+        "x": 620,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "inj_servo_0",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Servo 0 degres",
+        "topic": "",
+        "payload": "0",
+        "payloadType": "str",
+        "x": 140,
+        "y": 320,
+        "wires": [
+            [
+                "mqtt_out_servo",
+                "fn_build_servo"
+            ]
+        ]
+    },
+    {
+        "id": "inj_servo_90",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Servo 90 degres",
+        "topic": "",
+        "payload": "90",
+        "payloadType": "str",
+        "x": 140,
+        "y": 360,
+        "wires": [
+            [
+                "mqtt_out_servo",
+                "fn_build_servo"
+            ]
+        ]
+    },
+    {
+        "id": "inj_servo_180",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Servo 180 degres",
+        "topic": "",
+        "payload": "180",
+        "payloadType": "str",
+        "x": 140,
+        "y": 400,
+        "wires": [
+            [
+                "mqtt_out_servo",
+                "fn_build_servo"
+            ]
+        ]
+    },
+    {
+        "id": "fn_build_servo",
+        "type": "function",
+        "z": "esp32_iot_tab",
+        "name": "Angle servo -> field",
+        "func": "var angle = parseInt(msg.payload);\nmsg.payload = [\n    { servo_angle: angle },\n    { device: \"esp32_01\" }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 380,
+        "y": 360,
+        "wires": [
+            [
+                "influx_out"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_servo",
+        "type": "mqtt out",
+        "z": "esp32_iot_tab",
+        "name": "-> servo",
+        "topic": "servo",
+        "qos": "1",
+        "retain": "",
+        "broker": "broker_public",
+        "x": 620,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "inj_neo_255_0_0",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Neopixel Rouge",
+        "topic": "",
+        "payload": "255,0,0",
+        "payloadType": "str",
+        "x": 140,
+        "y": 460,
+        "wires": [
+            [
+                "mqtt_out_neo",
+                "fn_build_neo"
+            ]
+        ]
+    },
+    {
+        "id": "inj_neo_0_255_0",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Neopixel Vert",
+        "topic": "",
+        "payload": "0,255,0",
+        "payloadType": "str",
+        "x": 140,
+        "y": 500,
+        "wires": [
+            [
+                "mqtt_out_neo",
+                "fn_build_neo"
+            ]
+        ]
+    },
+    {
+        "id": "inj_neo_0_0_255",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Neopixel Bleu",
+        "topic": "",
+        "payload": "0,0,255",
+        "payloadType": "str",
+        "x": 140,
+        "y": 540,
+        "wires": [
+            [
+                "mqtt_out_neo",
+                "fn_build_neo"
+            ]
+        ]
+    },
+    {
+        "id": "inj_neo_0_0_0",
+        "type": "inject",
+        "z": "esp32_iot_tab",
+        "name": "Neopixel Off",
+        "topic": "",
+        "payload": "0,0,0",
+        "payloadType": "str",
+        "x": 140,
+        "y": 580,
+        "wires": [
+            [
+                "mqtt_out_neo",
+                "fn_build_neo"
+            ]
+        ]
+    },
+    {
+        "id": "fn_build_neo",
+        "type": "function",
+        "z": "esp32_iot_tab",
+        "name": "Couleur -> fields",
+        "func": "var parts = msg.payload.toString().split(\",\");\nmsg.payload = [\n    {\n        neopixel_r: parseInt(parts[0]),\n        neopixel_g: parseInt(parts[1]),\n        neopixel_b: parseInt(parts[2])\n    },\n    { device: \"esp32_01\" }\n];\nreturn msg;",
+        "outputs": 1,
+        "x": 380,
+        "y": 520,
+        "wires": [
+            [
+                "influx_out"
+            ]
+        ]
+    },
+    {
+        "id": "mqtt_out_neo",
+        "type": "mqtt out",
+        "z": "esp32_iot_tab",
+        "name": "-> lights/neopixel",
+        "topic": "lights/neopixel",
+        "qos": "1",
+        "retain": "",
+        "broker": "broker_public",
+        "x": 620,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "influx_out",
+        "type": "influxdb out",
+        "z": "esp32_iot_tab",
+        "influxdb": "db936eeba350cfd1",
+        "name": "Ecrire esp32_iot",
+        "measurement": "esp32_iot",
+        "precision": "",
+        "retentionPolicy": "",
+        "database": "",
+        "precisionV18FluxV20": "ms",
+        "retentionPolicyV18Flux": "",
+        "org": "industrie4.0",
+        "bucket": "telemetry",
+        "x": 860,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "broker_public",
+        "type": "mqtt-broker",
+        "name": "Broker public (HiveMQ)",
+        "broker": "broker.hivemq.com",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true
+    },
+    {
+        "id": "db936eeba350cfd1",
+        "type": "influxdb",
+        "hostname": "127.0.0.1",
+        "port": 8086,
+        "protocol": "http",
+        "database": "database",
+        "name": "Data Base",
+        "usetls": false,
+        "tls": "",
+        "influxdbVersion": "2.0",
+        "url": "http://influxdb:8086",
+        "timeout": 10,
+        "rejectUnauthorized": true
+    },
+    {
+        "id": "36d7b29e5593dea4",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-influxdb": "0.7.0"
+        }
+    }
+]

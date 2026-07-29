@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "author": "Asim Zulfiqar",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht1",
+      "top": -18.9,
+      "left": -152.47,
+      "attrs": { "temperature": "26.2", "humidity": "25" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": -14.57,
+      "left": -66.62,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 54.1,
+      "left": -66.61,
+      "rotate": 90,
+      "attrs": { "value": "1000" }
+    },
+    { "type": "wokwi-servo", "id": "servo1", "top": -22, "left": 165.87, "attrs": {} },
+    {
+      "type": "wokwi-led-ring",
+      "id": "ring1",
+      "top": -204.16,
+      "left": 133.32,
+      "attrs": { "pixels": "16" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ],
+    [ "dht1:VCC", "esp:3V3", "red", [ "v107.69", "h259.69", "v-48" ] ],
+    [ "dht1:GND", "esp:GND.1", "black", [ "v54.36", "h25.56", "v-182.67", "h217.33", "v5.33" ] ],
+    [ "dht1:SDA", "esp:D12", "green", [ "v78.36", "h113.52", "v-22.67" ] ],
+    [ "led1:A", "r1:1", "green", [ "v0" ] ],
+    [ "r1:2", "esp:D26", "blue", [ "h23.67", "v-5.97" ] ],
+    [
+      "led1:C",
+      "esp:GND.1",
+      "black",
+      [ "v26.59", "h-18.55", "v-78.43", "h191.83", "v163.22", "h1.06", "v10.6" ]
+    ],
+    [ "servo1:PWM", "esp:D2", "green", [ "h-6.09", "v84.25" ] ],
+    [ "servo1:V+", "esp:3V3", "green", [ "h-26.76", "v125.08" ] ],
+    [ "servo1:GND", "esp:GND.1", "black", [ "h-13.43", "v121.25" ] ],
+    [ "ring1:GND", "esp:GND.1", "black", [ "v0" ] ],
+    [ "ring1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "ring1:DIN", "esp:D4", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}

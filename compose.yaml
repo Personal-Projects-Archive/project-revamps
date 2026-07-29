@@ -1,0 +1,42 @@
+services:
+
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - influx_data:/var/lib/influxdb2
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - "3333:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto
+    container_name: mosquitto
+
+    ports:
+      - "1883:1883"
+
+    restart: unless-stopped
+  nodered:
+    image: nodered/node-red
+
+    container_name: nodered
+
+    ports:
+      - "1880:1880"
+
+    restart: unless-stopped
+
+
+volumes:
+  influx_data:
+  grafana_data:
